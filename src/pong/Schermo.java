@@ -76,12 +76,19 @@ class Schermo extends JPanel {
         g2.drawString(String.valueOf(partita.getPunti(Lato.SINISTRA)), larghezza / 2 - 80, 60);
         g2.drawString(String.valueOf(partita.getPunti(Lato.DESTRA)), larghezza / 2 + 50, 60);
 
+        g2.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
+        String livello = "Livello " + partita.getLivello() + " di " + partita.getNumeroLivelli()
+                + "   ·   vite: " + partita.getVite();
+        g2.drawString(livello, (larghezza - g2.getFontMetrics().stringWidth(livello)) / 2, altezza - 20);
+
         if (!partita.isInCorso()) {
             g2.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 22));
             String messaggio;
             if (!partita.isIniziata()) messaggio = "Premi SPAZIO per cominciare";
-            else if (partita.getVincitore() == Lato.SINISTRA) messaggio = "Ha vinto sinistra. SPAZIO per ricominciare";
-            else if (partita.getVincitore() == Lato.DESTRA) messaggio = "Ha vinto destra. SPAZIO per ricominciare";
+            else if (partita.isCompletato()) messaggio = "Hai vinto tutti i livelli! SPAZIO per ricominciare";
+            else if (partita.isPerso()) messaggio = "Vite finite. SPAZIO per ricominciare dal livello 1";
+            else if (partita.getVincitore() == partita.getUmano()) messaggio = "Livello superato! SPAZIO per il livello " + partita.getLivello();
+            else if (partita.getVincitore() != null) messaggio = "Hai perso una vita. SPAZIO per rigiocare il livello";
             else messaggio = "Partita finita senza vincitore?! SPAZIO per ricominciare";
             int lunghezza = g2.getFontMetrics().stringWidth(messaggio);
             g2.drawString(messaggio, (larghezza - lunghezza) / 2, altezza / 2 + 60);

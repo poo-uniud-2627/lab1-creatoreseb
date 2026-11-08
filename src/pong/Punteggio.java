@@ -29,6 +29,10 @@ public class Punteggio {
      * Promette: una partita 0 a 0, non finita, senza vincitore e con la storia vuota.
      */
     public Punteggio(int puntiPerVincere, int scartoMinimo) {
+        if (puntiPerVincere < 1 || scartoMinimo < 1){
+            throw new IllegalArgumentException("puntiPerVincere e scartoMinimo devono essere maggiori o uguali a 1");
+        }
+
         this.puntiPerVincere = puntiPerVincere;
         this.scartoMinimo = scartoMinimo;
         this.storiaPunti = new ArrayList<>();
@@ -43,17 +47,24 @@ public class Punteggio {
      *           Se la partita era già finita, non cambia niente.
      */
     public void segnaPunto(Lato chi) {
-       if (isFinita()){
-        return;
-       } 
-       storiaPunti.add(chi);
-    }
+        if (chi == null){
+            throw new IllegalArgumentException("Il lato non può essere null");
+        }
+
+        if (isFinita()){
+            return;
+        } 
+        storiaPunti.add(chi);
+        }
 
     /**
      * Pretende: chi non è null.
      * Promette: i punti del lato chi. Non cambia niente.
      */
     public int getPunti(Lato chi) {
+        if (chi == null){
+            throw new IllegalArgumentException("Il lato non può essere null");
+        }
         int punti = 0;
         for(Lato l : storiaPunti){
             if(l == chi){
@@ -92,6 +103,57 @@ public class Punteggio {
         }
         return null;
     }
+
+
+
+    // metodo repOK : come Invariante
+
+    /** Proprietà dell'invariante:
+     *  - puntiPerVincere e scartoMinimo almeno 1
+     *  - storiaPunti non null
+     *  - nessun elemento di storiaPunti null
+     *  - nella storia non ci sono punti registrati dopo il punto della vittoria
+    **/
+
+    boolean repOK(){
+        if (puntiPerVincere < 1 || scartoMinimo < 1){
+            return false;
+        }
+
+        if (storiaPunti == null){
+            return false;
+        }
+
+        int s = 0;
+        int d = 0;
+
+        // usiamo un contatore di punteggio
+        for (int i= 0; i < storiaPunti.size(); i = i+1){
+            Lato lato = storiaPunti.get(i);
+            if(lato == null){
+                return false;
+            }
+            if (lato == Lato.SINISTRA){
+                s = s+1;
+            } else if (lato == Lato.DESTRA){
+                d = d+1;
+            } else {
+                return false;
+            }
+
+            boolean finita = (s >= puntiPerVincere && (s-d) >= scartoMinimo) || (d >= puntiPerVincere && (d-s) >= scartoMinimo);
+
+            // se la partita è finita prima dell'ultimo elemento della lista
+            if (finita && i < storiaPunti.size() - 1){
+                return false;
+            }
+        }
+        return true;
+        
+
+    }
+
+
 
     /**
      * L'arbitro ci ripensa: toglie l'ultimo punto della storia (l'ultimo segnato e non già annullato).
